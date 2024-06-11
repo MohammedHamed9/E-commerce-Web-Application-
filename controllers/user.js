@@ -75,11 +75,6 @@ login: async(req,res,next)=>{
                 message:"the email or the password is wrong!"
         })
     }
-    if(!user.verified){
-        return res.status(500).json({
-            message:"please verify your account before loging in!"
-        })
-    }
     const token=signToken(user._id);
     createCookie(token,res);
     res.status(201).json({
@@ -101,32 +96,62 @@ logout:(req,res,next)=>{
     message:'loggedout successfully..'
    });
 },
-//not completed ...try and catch blocks
-deleteUser:async(req,res)=>{
-    const user=await User.findById(req.params.id);
-    if(!user)
-    return res.status(500).json({
-        message:"this user is not found !"
-    });
-    const filePath=user.avatar;
-    await fsunlink(filePath);
-    await User.findByIdAndDelete(user._id);
-    res.json({
-        message:"the user is deleted.."
-    })
-},
-// need Updating 
-verifyAcc:async(req,res,)=>{
-    const user=await User.findById(req.params.userId);
-    if(!user||req.params.verificationToken!==user.verificationToken){
-    return res.status(400).json({
-        message:'Invalid credintals provided!'
-    });
+deleteUser:async(req,res,next)=>{
+    try {
+        const user=await User.findById(req.params.id);
+        if(!user)
+        return res.status(500).json({
+            message:"this user is not found !"
+        });
+        const filePath=user.avatar;
+        await fsunlink(filePath);
+        await User.findByIdAndDelete(user._id);
+        res.json({
+            message:"the user is deleted.."
+        })
+    } catch (error) {
+        console.log(error);
+        return next(new appError('somthing went wrong!',500));
     }
-    user.verified=true;
-    user.verificationToken=null;
-    await user.save();
-
+    
+},
+getVerificationCode:async(req,res,next)=>{
+    try {
+        //add an email 
+        const email=req.body.email;
+        //making the verification code
+        let min = 1000;
+        let max = 9999;
+        let randomFourDigitNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        //send the verification code
+        EmailCtrl.sendVerificationCode(email,randomFourDigitNumber);
+        req.user.verificationToken=randomFourDigitNumber;
+        await req.user.save();
+        res.status(200).json({
+            message:'we sent the Verification Code successfully '
+        })
+    } catch (error) {
+        console.log(error);
+        return next(new appError('somthing went wrong!',500));
+    }
+},
+verifyAcc:async(req,res,next)=>{ 
+    try {
+        const verificationToken=req.body.verificationToken;
+        //if true send and true response 
+        if(!req.user.verificationToken==verificationToken){
+            return next (new appError('somthing went wrong!',500));
+        }
+        req.user.verified=true;
+        req.user.verificationToken=null;
+        await req.user.save();
+        res.status(200).json({
+            message:'the account has been verafied successfully..'
+        })
+    } catch (error) {
+        console.log(error);
+        return next(new appError('somthing went wrong!',500));
+    }
 },
 forgetPassword:async(req,res,next)=>{
     try {
@@ -161,7 +186,7 @@ resetPassword:async(req,res,next)=>{
         passwordRestToken:hashedToken,
         passwordRestExpires:{$gte:Date.now()}
     });
-    if(!user){
+        if(!user){
         return next(new appError('Token is invalid or has expired',400));
     }
     //logic to reset the password ....
@@ -186,8 +211,30 @@ resetPassword:async(req,res,next)=>{
     }
     
 },
-updatePassword:async()=>{
+updatePassword:async(req,res,next)=>{
+    try {
+        //check on the old password first
+        const oldPassword=req.body.oldPassword;
+        const newPassword=req.body.newPassword;
+        const passwordConfirm=req.body.passwordConfirm;
 
+        //not true tell the user sorry  
+        if(! await req.user.correctPassword(oldPassword,req.user.password)){
+            return next (new appError('sorry the password is wrong!',400))
+        }
+        //if true update the passwrd
+        if(newPassword!==passwordConfirm){
+            return next(new appError('sorry passwords are not the same!',400))
+        }
+        req.user.password=newPassword;
+        await req.user.save();
+        res.status(200).json({
+            message:'the password is updated successfully..'
+        });
+    } catch (error) {
+        console.log(error);
+        next(new appError('somthing went wrong!',500));
+    }
 },
 updateMe:async(req,res,next)=>{
     try {

@@ -4,7 +4,7 @@ const authCtrl=
 {
 protect:async(req,res,next)=>{
     if(!req.headers.authorization || !req.headers.authorization.startsWith("bearer"))
-    return res.status(500).json({
+    return res.status(401).json({
         message:"You are not logged in please login!"
     });
 

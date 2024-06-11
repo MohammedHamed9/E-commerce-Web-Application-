@@ -53,10 +53,9 @@ const UserSchema=new mongoose.Schema({
         default:false
     },
     verificationToken:{
-        type:String,
+        type:Number,
         index:true,
         unique:true,
-        default:crypto.randomBytes(20).toString('hex')
     },
     passwordRestToken:String,
     passwordRestExpires:Date,
@@ -72,6 +71,7 @@ UserSchema.pre('save',async function(next){
 
 UserSchema.methods.correctPassword=async function(addedPass,truePass){
     const flag =await bcrypt.compare(addedPass,truePass);
+    console.log(flag);
     return flag
 };
 UserSchema.methods.createRestToken=function(){

@@ -32,6 +32,19 @@ const EmailCtrl={
       console.log(error);
     } 
     
+  },
+  sendVerificationCode:async(email,code)=>{
+    try {
+      const mailOptions={
+        from:{name:'e-commerce app',address:process.env.EMAIL_USER},
+        to:email,
+        subject:"the Verification of the email",
+        html:`here is your verification code: <b>${code}</b>`,
+      }
+      await transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 module.exports=EmailCtrl;
