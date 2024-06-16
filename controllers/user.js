@@ -1,4 +1,5 @@
 const User=require("../models/userModel");
+const Product=require("../models/productModel");
 const jwt=require("jsonwebtoken");
 const appError = require('../utils/appError');
 const crypto=require('crypto');
@@ -269,7 +270,215 @@ deleteMe:async(req,res,next)=>{
         console.log(error);
         next(new appError('somthing went wrong!',500));
     }
-}
+},
+
+addToCart:async(req,res,next)=>{
+    try {
+        const {productId,quantity}=req.body;
+    //check if product exist and the quantity is available 
+    const product=await Product.findById(productId);
+    if(!product)
+        return next(new appError('sorry this product is not exist right now!',404))
+    if(quantity>product.quantity){
+        return next(new appError('sorry the quantity  what u want is not exist right now!',404));
+        }
+    //add the product
+    let flag=false;
+    const array=req.user.cart.products.map(el=>{
+        if(el.product==productId){
+            flag=true;
+        }
+    });
+    if(flag)
+        return next(new appError('sorry this product is already exist in the cart!',404))
+    
+    req.user.cart.products.push({product:productId,quantity:quantity});
+    await req.user.save();
+    res.status(200).json({
+        message:'the item is added to the cart',
+        cart:req.user.cart
+    });
+    } catch (error) {
+        console.log(error);
+        next(new appError('something went wrong!',500));
+    }
+    
+},
+
+UpdateCartItem:async(req,res,next)=>{
+    try{
+    const productId=req.params.productId;
+    const quantity=req.body.quantity;
+    const userCart=await User.findById(req.user._id).select('cart').populate('cart.products.product');
+    let flag=false;
+    const array=userCart.cart.products.map(el=>{
+        if(el.product._id==productId){
+            flag=true;
+        }
+    });
+    if(!flag){
+        return next(new appError('sorry this product is not exist in the cart!',404));
+    }
+    const product=await Product.findById(productId);
+    if(!product||product.quantity<quantity){
+        return next(new appError('sorry this product is not exist or the quantity is more than the available!',400));
+        
+    }
+    const array2=userCart.cart.products.map(el=>{
+        if(el.product._id==productId){
+            el.quantity=quantity;
+        }
+        return el;
+
+    });
+    req.user.cart.products=array2;
+    await req.user.save();
+    res.status(200).json({
+        message:'the item is updated',
+        Cart:req.user.cart
+    });
+    }catch(error){
+        console.log(error);
+        next(new appError('something went wrong!',500));
+    }
+},
+getCartItem:async(req,res,next)=>{
+    try {
+    const productId=req.params.productId;
+    const product=await Product.findById(productId).select('-quantity -__v -admin_created_id');
+
+    if(!product)
+        return next(new appError('sorry this product is no longer exist!',404))
+    
+    let flag=false;
+    let quantity=0;
+    const array=req.user.cart.products.map(el=>{
+        if(el.product==productId){
+            flag=true;
+            quantity=el.quantity;
+        }
+    });
+    if(!flag)
+        return next(new appError('sorry this product is not exist in the cart!',404))
+    
+    let CartOftheUser={};
+    CartOftheUser.product=product;
+    CartOftheUser.quantity=quantity;
+
+    res.status(200).json({
+        product:CartOftheUser 
+    });
+
+    } catch (error) {
+        console.log(error);
+        next(new appError('something went wrong!',500));
+    }
+},
+getAllCartItems:async(req,res,next)=>{
+    try{
+    const userCart=await User.findById(req.user._id).select('cart').populate('cart.products.product');
+        res.status(200).json({
+            userCart:userCart.cart
+        });
+    }catch(error){
+        console.log(error)
+        next(new appError('something went wrong!',500))
+    }
+},
+removeCartItem:async(req,res,next)=>{
+    try{
+        const productId=req.params.productId;
+        const userCart=await User.findById(req.user._id).select('cart').populate('cart.products.product');
+        let flag=false;
+        if(userCart.cart.products.length==0){
+            return next(new appError('sorry the cart is empty!',404));
+        }
+        const array=userCart.cart.products.map(el=>{
+            if(el.product._id==productId){
+                flag=true;
+            }
+        });
+        if(!flag){
+            return next(new appError('sorry this product is not exist in the cart!',404));
+        }
+        userCart.cart.products=userCart.cart.products.filter(el=>{
+            return el.product._id!=productId
+        });
+        req.user.cart.products=userCart.cart.products;
+        await req.user.save();
+        res.status(204).json({
+            message:'the item is deleted..',
+        });
+    }catch(error){
+        console.log(error)
+        next(new appError('something went wrong!',500))
+    }
+    
+},
+addFavItem:async(req,res,next)=>{
+    try{
+        const productId=req.params.productId;
+
+        const userFavItems=await User.findById(req.user._id).select('favorite_items')
+        const flag=false;
+        const array=userFavItems.favorite_items.products.map(el=>{
+            if(el.product==productId){
+                return next(new appError('sorry this product is already exist in the favorite_items!',404))
+            }
+        })
+        req.user.favorite_items.products.push({product:productId});
+        await req.user.save();
+        res.status(200).json({
+        message:'the item is added to the favorite items',
+        favorite_items:req.user.favorite_items
+    });
+    }
+    catch(error){
+        console.log(error)
+        next(new appError('something went wrong!',500))
+    }
+},
+removeFavItem:async(req,res,next)=>{
+    try{
+        const productId=req.params.productId;
+        const userCart=await User.findById(req.user._id).select('favorite_items').populate('favorite_items.products.product');
+        let flag=false;
+        if(userCart.favorite_items.products.length==0){
+            return next(new appError('sorry the favorite_items is empty!',404));
+        }
+        const array=userCart.favorite_items.products.map(el=>{
+            if(el.product._id==productId){
+                flag=true;
+            }
+        });
+        if(!flag){
+            return next(new appError('sorry this product is not exist in the favorite_items!',404));
+        }
+        userCart.favorite_items.products=userCart.favorite_items.products.filter(el=>{
+            return el.product._id!=productId
+        });
+        req.user.favorite_items.products=userCart.favorite_items.products;
+        await req.user.save();
+        res.status(204).json({
+            message:'the item is deleted..',
+        });
+    }
+    catch(error){
+        console.log(error)
+        next(new appError('something went wrong!',500))
+    }
+},
+getAllFavoriteItems:async(req,res,next)=>{
+    try{
+    const userCart=await User.findById(req.user._id).select('favorite_items').populate('favorite_items.products.product');
+        res.status(200).json({
+            favorite_items:userCart.favorite_items
+        });
+    }catch(error){
+        console.log(error)
+        next(new appError('something went wrong!',500))
+    }
+},
 }
 
 module.exports=userCtrl

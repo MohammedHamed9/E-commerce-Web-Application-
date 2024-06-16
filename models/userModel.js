@@ -41,12 +41,28 @@ const UserSchema=new mongoose.Schema({
         default:""
     },
     cart:{
-        type:Array,
-        default:[]
+       products:[
+        {
+        product:{
+            type:mongoose.Schema.ObjectId,
+            ref:'products'
+        },
+        quantity:{
+            type:Number,
+            default:1
+        }
+       }
+       ]
     },
     favorite_items:{
-        type:Array,
-        default:[]
+        products:[
+            {
+            product:{
+                type:mongoose.Schema.ObjectId,
+                ref:'products'
+            }
+            }
+        ]
     },
     verified:{
         type:Boolean,
@@ -71,7 +87,6 @@ UserSchema.pre('save',async function(next){
 
 UserSchema.methods.correctPassword=async function(addedPass,truePass){
     const flag =await bcrypt.compare(addedPass,truePass);
-    console.log(flag);
     return flag
 };
 UserSchema.methods.createRestToken=function(){

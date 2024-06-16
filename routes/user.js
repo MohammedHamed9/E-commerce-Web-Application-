@@ -16,5 +16,14 @@ router.post('/forgetPassword',userCtrl.forgetPassword);
 router.post('/resetPassword/:token',userCtrl.resetPassword);
 router.patch('/updateMe',authCtrl.protect,uploadMiddleware.upload.single('avatar'),resizeingMiddleware.resizeingAvatars,userCtrl.updateMe);
 router.patch('/updatePassword',authCtrl.protect,userCtrl.updatePassword);
-router.delete('/deleteMe',authCtrl.protect,userCtrl.deleteMe)
+router.delete('/deleteMe',authCtrl.protect,userCtrl.deleteMe);
+router.post('/addToCart',authCtrl.protect,userCtrl.addToCart);
+router.get('/getCartItem/:productId',authCtrl.protect,userCtrl.getCartItem);
+router.get('/getAllCartItems',authCtrl.protect,userCtrl.getAllCartItems);
+router.patch('/UpdateCartItem/:productId',authCtrl.protect,userCtrl.UpdateCartItem);
+router.delete('/removeCartItem/:productId',authCtrl.protect,userCtrl.removeCartItem);
+router.get('/getAllFavoriteItems',authCtrl.protect,userCtrl.getAllFavoriteItems);
+router.post('/addFavItem/:productId',authCtrl.protect,userCtrl.addFavItem);
+router.delete('/removeFavItem/:productId',authCtrl.protect,userCtrl.removeFavItem);
+
 module.exports=router;
