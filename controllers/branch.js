@@ -101,12 +101,11 @@ const BranchCtrl=
         }
         store_id=branch.store_id;
         const store=await Store.findById(store_id);
-        console.log(branch ,store);
+        //console.log(branch ,store);
         
         //to delete the branch_id from the branches array too 
-        store.branches=store.branches.filter((el)=>{
-            el!==branch._id
-        });
+
+        store.branches=store.branches.filter(el=>el!=branch_id);
         await store.save();
         await branch.deleteOne();
         res.status(203).json({
@@ -169,7 +168,7 @@ const BranchCtrl=
                 status:true
             }
         }
-            console.log(query);
+            //console.log(query);
             const branchs= await Branch.find(query,
                 {store_id:1,address_ar:1,address_en:1,working_hours_from:1,
                     working_hours_to:1,status:1,phone:1,

@@ -1,5 +1,5 @@
 const mongoose=require("mongoose");
-
+const appError = require("../utils/appError");
 const categorySchema =new mongoose.Schema({
     name_ar:{
         type:String,
@@ -39,5 +39,4 @@ const categorySchema =new mongoose.Schema({
         ref:'users'
     }
 })
-
 module.exports=mongoose.model("categories",categorySchema);

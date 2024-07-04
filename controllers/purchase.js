@@ -26,7 +26,7 @@ purchaseCtrl={
                 }
             ]
         })
-        console.log(`req.protocol:${req.protocol} + req.get('host'): ${req.get('host')}`)
+        //console.log(`req.protocol:${req.protocol} + req.get('host'): ${req.get('host')}`)
         //send the session 
         res.status(200).json({
             status:'success',

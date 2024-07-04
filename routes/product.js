@@ -8,7 +8,7 @@ router.patch('/updateProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),uplo
 router.get('/getAllProducts',authCtrl.protect,productCtrl.getAllProducts);
 router.get('/getProduct/:id',authCtrl.protect,productCtrl.getProduct);
 router.get('/searchForProduct',authCtrl.protect,productCtrl.searchForProduct);
-router.get('/filterPorducts',productCtrl.filterPorducts);
-
+router.get('/filterPorducts',authCtrl.protect,productCtrl.filterPorducts);
+router.delete('/deleteProduct/:id',auth.protect,auth.restrictedTo(1),productCtrl.deleteProduct);
 
 module.exports=router;

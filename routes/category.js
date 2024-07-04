@@ -7,5 +7,5 @@ router.post('/createCategory',authCtrl.protect,authCtrl.restrictedTo(1),uploadMi
 router.patch('/updateCategory/:id',authCtrl.protect,authCtrl.restrictedTo(1),uploadMiddleware.upload.single('category_image'),categoryCtrl.updateCategory)
 router.get('/getCategory/:id',categoryCtrl.getCategory);
 router.get('/getCategories',categoryCtrl.getCategories);
-
+router.delete('/deleteCtegory',authCtrl.protect,authCtrl.restrictedTo(1),categoryCtrl.deleteCtegory);
 module.exports=router;

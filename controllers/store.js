@@ -1,4 +1,6 @@
+const e = require("express");
 const Store=require("../models/storeModel");
+const Branch=require("../models/storeBranchModel")
 const appError = require("../utils/appError");
 const storeCtrl=
 {
@@ -108,7 +110,33 @@ const storeCtrl=
     }
 },
 //NOT IMPLEMENTED YET
-    deletStore:async(req,res,next)=>{
+    deleteStore:async(req,res,next)=>{
+        try{
+            //chick if the stroe exist 
+            const storeId=req.params.id;
+            const store=await Store.findById(storeId);
+            if(!store){
+                return next(new appError('sorry this store is not exist!',404));
+            }
+            //chech if the store has branches
+            let branchesIds=[];
+            //delete all branches
+            if(store.branches.length>0){
+                store.branches.map(el=>{
+                    branchesIds.push(el);
+                });
+            await Branch.deleteMany({_id:{$in:branchesIds}});
+            }
+            //delete the stroe
+            await Store.findByIdAndDelete(storeId);
+            res.status(204).json({
+                message:'done'
+            });
+            
+        }catch(error){
+            console.log(error);
+            next(new appError('somthing went wrong!',500));
+        }
     }
 }
 module.exports=storeCtrl

@@ -1,5 +1,7 @@
 const { query } = require('express');
 const Category=require('../models/categoryModel');
+const Product=require("../models/productModel");
+const User=require('../models/userModel');
 const appError = require('../utils/appError');
 const util=require('util');
 const fs=require('fs');
@@ -30,7 +32,7 @@ const categoryCtrl={
                 return next(new appError('the category is not exist!',404));
             }
             req.body.admin_update_id=req.user._id;
-            console.log(req.file);
+            //console.log(req.file);
             if(req.file){
                 if(category.category_image!==""){
                     const filePath=category.category_image;
@@ -116,6 +118,31 @@ const categoryCtrl={
         }
     },
     //NOT IMPLEMENTED YET
-    deleteCtegory:async(req,res,next)=>{}
+    deleteCtegory:async(req,res,next)=>{
+        try{
+            const filter=req.body.filter;
+            //find the products with this categoryId
+            const products=await Product.find({category_id:{$in:filter}});
+
+            const productIds=products.map(el=> el._id); 
+            //delete these products from the user carts and fav_items
+            await User.updateMany({
+            'cart.products.product':{$in:productIds}},
+            {$pull:{'cart.products':{ product:{$in:productIds}}} });
+            await User.updateMany({
+                'favorite_items.products.product':{$in:productIds}},
+                {$pull:{'favorite_items.products':{ product:{$in:productIds}}} });
+            //delete these products from the system
+            await Product.deleteMany({_id:{$in:productIds}});
+            //delete the category
+            await Category.deleteMany({_id: {$in:filter }});
+            res.status(204).json({
+                message:"done"});
+        }
+        catch(error){
+            console.log(error);
+            next(new appError('somthing went wrong!',500));
+        }
+    }
 }
 module.exports=categoryCtrl;

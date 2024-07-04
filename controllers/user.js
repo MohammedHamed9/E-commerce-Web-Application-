@@ -97,6 +97,34 @@ logout:(req,res,next)=>{
     message:'loggedout successfully..'
    });
 },
+//NOT IMPLMENTED
+getAllUsers:async(req,res,next)=>{
+    const filter=req.body.filter;
+            //find the products with this categoryId
+            const products=await Product.find({category_id:{$in:filter}});
+
+            const productIds=products.map(el=> el._id);  
+            console.log(productIds);
+            res.json({
+                products
+            })
+},
+getUser:async(req,res,next)=>{
+    try{
+        //const users=await User.find({'cart.products.product':req.params.id});
+        const productIds=req.body.productIds;
+        await User.updateMany({
+            'cart.products.product':{$in:productIds}},
+            {$pull:{'cart.products':{ product:{$in:productIds}}} });
+        res.status("200").json({
+            message:"done"
+        })
+    }
+    catch(error){
+        console.log(error);
+        next(new appError('something went wrong!',500));
+    }
+},
 deleteUser:async(req,res,next)=>{
     try {
         const user=await User.findById(req.params.id);
@@ -249,7 +277,7 @@ updateMe:async(req,res,next)=>{
         }
         filteredBody.avatar=req.file.path;
     }
-    console.log(filteredBody);
+    //console.log(filteredBody);
     const newUser=await User.findOneAndUpdate(req.user._id,filteredBody,{new:true});
     res.status(200).json({
         message:'success',
@@ -286,7 +314,7 @@ addToCart:async(req,res,next)=>{
     let flag=false;
     const array=req.user.cart.products.map(el=>{
         if(el.product==productId){
-            flag=true;
+            return flag=true;
         }
     });
     if(flag)
@@ -420,17 +448,19 @@ addFavItem:async(req,res,next)=>{
         const productId=req.params.productId;
 
         const userFavItems=await User.findById(req.user._id).select('favorite_items')
-        const flag=false;
+        let flag=false;
         const array=userFavItems.favorite_items.products.map(el=>{
             if(el.product==productId){
-                return next(new appError('sorry this product is already exist in the favorite_items!',404))
+                return flag=true;
             }
         })
+        if(flag)
+            return next(new appError('sorry this product is already exist in the favorite_items!',404))
         req.user.favorite_items.products.push({product:productId});
         await req.user.save();
         res.status(200).json({
         message:'the item is added to the favorite items',
-        favorite_items:req.user.favorite_items
+        favorite_items:req.user.favorite_items.products
     });
     }
     catch(error){
