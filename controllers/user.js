@@ -443,6 +443,19 @@ removeCartItem:async(req,res,next)=>{
     }
     
 },
+emptyTheCart:async(req,res,next)=>{
+    try {
+        const user=await User.findById(req.user._id);
+        user.cart.products=[];
+        await user.save();
+        res.status(200).json({
+            message:"the cart is empty"
+        })
+    } catch (error) {
+        console.log(error);
+        return next(new appError('something went wrong!',500));
+    }
+},
 addFavItem:async(req,res,next)=>{
     try{
         const productId=req.params.productId;

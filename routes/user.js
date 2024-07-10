@@ -19,13 +19,16 @@ router.post('/resetPassword/:token',userCtrl.resetPassword);
 router.patch('/updateMe',authCtrl.protect,uploadMiddleware.upload.single('avatar'),resizeingMiddleware.resizeingAvatars,userCtrl.updateMe);
 router.patch('/updatePassword',authCtrl.protect,userCtrl.updatePassword);
 router.delete('/deleteMe',authCtrl.protect,userCtrl.deleteMe);
-router.post('/addToCart',authCtrl.protect,userCtrl.addToCart);
-router.get('/getCartItem/:productId',authCtrl.protect,userCtrl.getCartItem);
-router.get('/getAllCartItems',authCtrl.protect,userCtrl.getAllCartItems);
-router.patch('/UpdateCartItem/:productId',authCtrl.protect,userCtrl.UpdateCartItem);
-router.delete('/removeCartItem/:productId',authCtrl.protect,userCtrl.removeCartItem);
-router.get('/getAllFavoriteItems',authCtrl.protect,userCtrl.getAllFavoriteItems);
-router.post('/addFavItem/:productId',authCtrl.protect,userCtrl.addFavItem);
-router.delete('/removeFavItem/:productId',authCtrl.protect,userCtrl.removeFavItem);
+
+router.post('/addToCart',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.addToCart);
+router.get('/getCartItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.getCartItem);
+router.get('/getAllCartItems',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.getAllCartItems);
+router.patch('/UpdateCartItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.UpdateCartItem);
+router.delete('/removeCartItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.removeCartItem);
+router.put('/emptyTheCart',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.emptyTheCart);
+
+router.get('/getAllFavoriteItems',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.getAllFavoriteItems);
+router.post('/addFavItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.addFavItem);
+router.delete('/removeFavItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.removeFavItem);
 
 module.exports=router;

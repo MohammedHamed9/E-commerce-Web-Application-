@@ -25,7 +25,7 @@ protect:async(req,res,next)=>{
             message:"Your session has expired. Please log in again."
         });
         
-        return(401).json({
+        return res.status(401).json({
             message: "Invalid token. Please log in again.",
         })
     }

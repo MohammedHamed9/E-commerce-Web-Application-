@@ -8,6 +8,7 @@ const storeBranchRoute=require("./routes/storeBranch");
 const categoryRoute=require('./routes/category');
 const productRoute=require('./routes/product');
 const purchaseRoute=require('./routes/purchasing');
+const orderRoute=require('./routes/order');
 const appError = require('./utils/appError');
 const ErrorCtrl=require('./controllers/ErrorController');
 
@@ -20,7 +21,7 @@ app.use("/api/storeBranch",storeBranchRoute);
 app.use("/api/category",categoryRoute);
 app.use("/api/product",productRoute);
 app.use("/api/purchase",purchaseRoute);
-
+app.use("/api/order",orderRoute);
 app.all('*',(req,res,next)=>{
     next(new appError(`cant find ${req.originalUrl} in this server!`,404));
 });

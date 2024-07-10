@@ -3,7 +3,8 @@ const user=require('./userModel')
 const branch=require('./storeBranchModel');
 const product=require('./productModel');
 const order =new mongoose.Schema({
-    products:[{
+    products:
+    [{
         product:{
             type:mongoose.Types.ObjectId,
             ref:'products',
@@ -31,9 +32,5 @@ const order =new mongoose.Schema({
     totalAmount:{
         type:Number,
     },
-    branch_id:{
-        type:mongoose.Types.ObjectId,
-        ref:'storeBranchs'
-    }
 })
 module.exports=mongoose.model("orders",order);
