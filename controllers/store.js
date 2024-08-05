@@ -23,7 +23,8 @@ const storeCtrl=
                 store
             })
         }catch(err){
-            next(err);
+            console.log(err);
+            next(new appError('somthing went wrong!',500));
         }
 },
     updateStore:async(req,res)=>{
@@ -43,9 +44,8 @@ const storeCtrl=
                 updatedStore
             });
     }catch(err){
-        return res.status(500).json({
-            msg:err.message
-        });
+        console.log(err);
+        next(new appError('somthing went wrong!',500));
     }
 },
     getAllStores:async(req,res)=>{
@@ -90,7 +90,8 @@ const storeCtrl=
                 }
             })
         }catch(err){
-            next(err);
+            console.log(err);
+            next(new appError('somthing went wrong!',500));
         }
 },
     getStore:async(req,res,next)=>{
@@ -106,7 +107,8 @@ const storeCtrl=
             store
         })
     }catch(err){
-        return next(err);
+        console.log(err);
+        next(new appError('somthing went wrong!',500));
     }
 },
 //NOT IMPLEMENTED YET

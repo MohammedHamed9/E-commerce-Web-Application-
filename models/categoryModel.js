@@ -1,20 +1,16 @@
 const mongoose=require("mongoose");
 const appError = require("../utils/appError");
 const categorySchema =new mongoose.Schema({
-    name_ar:{
+    name:{
         type:String,
         required:true,
         trim:true,
         minLength:3,
         unique:true
     },
-    name_en:{
+    slug:{
         type:String,
-        required:true,
-        trim:true,
-        minLength:3,
-        unique:true
-
+        lowercase:true
     },
     status:{
         type:Boolean,
@@ -25,11 +21,6 @@ const categorySchema =new mongoose.Schema({
         default:"",
         trim:true
     },
-    products:[{
-        type:mongoose.Types.ObjectId,
-        ref:'products',
-        default:null
-    }],
     admin_created_id:{
         type:mongoose.Types.ObjectId,
         ref:'users'
@@ -38,5 +29,5 @@ const categorySchema =new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:'users'
     }
-})
+},{timestamps:true});
 module.exports=mongoose.model("categories",categorySchema);

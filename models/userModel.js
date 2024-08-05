@@ -73,9 +73,10 @@ const UserSchema=new mongoose.Schema({
         index:true,
         unique:true,
     },
+   
     passwordRestToken:String,
     passwordRestExpires:Date,
-},{
+},{ 
     timestamps:true
 });
 

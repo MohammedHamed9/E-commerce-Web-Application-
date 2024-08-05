@@ -1,4 +1,4 @@
-const { query } = require('express');
+var slugify = require('slugify')
 const Category=require('../models/categoryModel');
 const Product=require("../models/productModel");
 const User=require('../models/userModel');
@@ -9,13 +9,13 @@ const fsunlink=util.promisify(fs.unlink);
 const categoryCtrl={
     createCategory:async(req,res,next)=>{
         try{
-            const {name_ar,name_en,products}=req.body;
+            const {name}=req.body;
             const admin_created_id=req.user._id;
             let category_image="";
             if(req.file){
                 category_image=req.file.path;
             }
-            const category=await Category.create({name_ar,name_en,category_image,products,admin_created_id});
+            const category=await Category.create({name,slug:slugify(name),category_image,admin_created_id});
             res.status(201).json({
                 message:'the category is created..',
                 category
@@ -43,7 +43,8 @@ const categoryCtrl={
                     
                 }
             }
-            
+
+            req.body.slug=slugify(req.body.name);    
         const updatedCategory= await Category.findByIdAndUpdate(req.params.id,
             req.body,
             {new:true});
@@ -59,7 +60,6 @@ const categoryCtrl={
     getCategory:async(req,res,next)=>{
         try{const category_Id=req.params.id;
         const category=await Category.findById(category_Id)
-        .populate("products","_id name_ar name_en status product_imge quantity onSale price");
         if(!category){
             return next(new appError('this category is not exist!',404));
         }
@@ -75,34 +75,16 @@ const categoryCtrl={
         try{
             const page=parseInt(req.query.page,10)||1;
             const limit=parseInt(req.query.limit,10)||10;
-            const search=req.query.search||"";
-            const query={
-                $or:[
-                    {
-                    name_ar:{
-                        $regex:search,
-                        $options:"i"
-                    }
-                },{
-                    name_en:{
-                        $regex:search,
-                        $options:"i"
-                    }
-                }
-                ],
-                status:true
-            };
             
-            const categories=await Category.find(query)
-            .populate("products","_id name_ar name_en status product_imge quantity onSale price")
+            const categories=await Category.find()
             .select("-__v")
             .sort({_id:1})
             .skip((page-1)*limit)
             .limit(limit)
 
-            const total=await Category.countDocuments(query);
+            const total=await Category.countDocuments();
             const hasprv= page>0 && page!==1;
-            const hasNext=page*limit+categories.length<total;   
+            const hasNext= page*limit + categories.length <total;   
             res.status(200).json({
                 categories,
                 paginate:{
@@ -117,24 +99,10 @@ const categoryCtrl={
             next(new appError('somthing went wrong!',500));
         }
     },
-    //NOT IMPLEMENTED YET
+    
     deleteCtegory:async(req,res,next)=>{
         try{
             const filter=req.body.filter;
-            //find the products with this categoryId
-            const products=await Product.find({category_id:{$in:filter}});
-
-            const productIds=products.map(el=> el._id); 
-            //delete these products from the user carts and fav_items
-            await User.updateMany({
-            'cart.products.product':{$in:productIds}},
-            {$pull:{'cart.products':{ product:{$in:productIds}}} });
-            await User.updateMany({
-                'favorite_items.products.product':{$in:productIds}},
-                {$pull:{'favorite_items.products':{ product:{$in:productIds}}} });
-            //delete these products from the system
-            await Product.deleteMany({_id:{$in:productIds}});
-            //delete the category
             await Category.deleteMany({_id: {$in:filter }});
             res.status(204).json({
                 message:"done"});
