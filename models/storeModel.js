@@ -1,6 +1,5 @@
 const mongoose=require("mongoose");
 const User=require("./userModel");
-const branch=require('./storeBranchModel');
 const store=new mongoose.Schema({
     name_ar:{
         type:String,
@@ -35,11 +34,6 @@ const store=new mongoose.Schema({
         required:true,
         default:true
     },
-    branches:[{
-        type:mongoose.Types.ObjectId,
-        ref:'storeBranchs',
-        default:null
-    }],
     admin_created_id:{
         type:mongoose.Types.ObjectId,
         ref:'users',

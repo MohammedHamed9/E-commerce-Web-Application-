@@ -3,44 +3,77 @@ const user=require('./userModel');
 const Category=require('../models/categoryModel');
 
 const productSchema=new mongoose.Schema({
-    
-    category_id:{
-        type:mongoose.Types.ObjectId,
-        ref:'categories',
-    },
-    name_ar:{
+    name:{
         type:String,
-        required:true,
+        required:[true,'the product must has a name!'],
         trim:true,
         unique:true,
         minLength:3,
     },
-    name_en:{
+    slug:{
         type:String,
-        required:true,
         trim:true,
         unique:true,
-        minLength:3,
+        lowercase:true
     },
     status:{
         type:Boolean,
         default:true
     },
-    product_image:{
+    description:{
         type:String,
-        default:""
+        trim:true,
+        required:[true,'the product must has a description!'],
+    },
+    image_cover:{
+        type:String,
+        //required:[true,'the product must has at least one image!'],
+    },
+    product_images:{
+        type:[String]
     },
     quantity:{
         type:Number,
         default:1
     },
+    sold:{
+        type:Number,
+        default:0
+    },
+    price:{
+        type:Number,
+        require:[true,'the product must has a price!'],
+    },
+    priceAfterDiscount:{
+        type:Number
+    },
+    colors:{
+        type:[String]
+    },
     onSale:{
         type:Boolean,
         default:false
     },
-    price:{
+    category:{
+        type:mongoose.Types.ObjectId,
+        ref:'categories',
+    },
+    subcategory:[{
+        type:mongoose.Schema.ObjectId,
+        ref:'subcategories'
+    }],
+    brand:{
+        type:mongoose.Schema.ObjectId,
+        ref:'brands'
+    },
+    rating:{
         type:Number,
-        require:true
+        min:[1,'the rating must be belong than 1'],
+        max:[5,'the rating must be less than or equal to 5']
+    },
+    ratingQuantity:{
+        type:Number,
+        default:0
     },
     admin_created_id:{
         type:mongoose.Types.ObjectId,
@@ -50,5 +83,5 @@ const productSchema=new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:'users'
     }
-})
+},{timestamps:true});
 module.exports=mongoose.model("products",productSchema);

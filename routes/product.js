@@ -3,12 +3,13 @@ const router=express.Router();
 const productCtrl=require('../controllers/product');
 const authCtrl=require('../middleware/auth');
 const uploadMiddleware=require('../middleware/uploadProduct');
-router.post('/createProduct',authCtrl.protect,authCtrl.restrictedTo(1),uploadMiddleware.upload.single('product_image'),productCtrl.createProduct);
-router.patch('/updateProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),uploadMiddleware.upload.single('product_image'),productCtrl.updateProduct);
-router.get('/getAllProducts',authCtrl.protect,productCtrl.getAllProducts);
-router.get('/getProduct/:id',authCtrl.protect,productCtrl.getProduct);
+const validators=require("../utils/validators/productValidations")
+router.post('/createProduct',authCtrl.protect,authCtrl.restrictedTo(1),uploadMiddleware.upload.single('product_image'),validators.createProductVlidator,productCtrl.createProduct);
+router.patch('/updateProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),uploadMiddleware.upload.single('product_image'),validators.getProductVlidator,productCtrl.updateProduct);
+router.get('/getAllProducts',productCtrl.getAllProducts);
+router.get('/getProduct/:id',validators.getProductVlidator,productCtrl.getProduct);
 router.get('/searchForProduct',authCtrl.protect,productCtrl.searchForProduct);
 router.get('/filterPorducts',authCtrl.protect,productCtrl.filterPorducts);
-router.delete('/deleteProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),productCtrl.deleteProduct);
+router.delete('/deleteProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),validators.getProductVlidator,productCtrl.deleteProduct);
 
 module.exports=router;

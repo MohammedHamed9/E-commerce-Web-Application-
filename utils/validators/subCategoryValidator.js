@@ -18,6 +18,11 @@ const validators={
         .isMongoId()
         .withMessage('Invalid MongoId!'),
         sendError
+    ],
+    getSubCategory:[
+        check('id').isMongoId()
+        .withMessage("Invalid MongoId! "),
+        sendError
     ]
 }
 module.exports=validators;
