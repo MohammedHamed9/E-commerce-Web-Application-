@@ -39,7 +39,15 @@ const productCtrl={
             }
         }
             if(req.file){
-                req.body.product_image=req.file.path;
+                req.body.image_cover=req.file.path;
+            }
+            if(req.files.product_images){
+                req.body.product_images=[];
+                for(let i=0;i<req.files.product_images.length;i++){
+                    const imageName=`${Date.now()}-${i+1}-${req.files.product_images[i].originalname}`.replace(/\s/g,'-');
+                    const filePath=`uploads/products/${imageName}`;
+                    req.body.product_images.push(filePath);
+                }
             }
             req.body.admin_created_id=req.user._id;
             req.body.slug=slugify(req.body.name);

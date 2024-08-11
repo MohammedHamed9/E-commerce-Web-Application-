@@ -1,7 +1,10 @@
+const path=require('path');
+
 const dotenv=require('dotenv')
 dotenv.config()
 const express=require('express');
 const morgan=require('morgan');
+
 const DBconnection=require('./config/DBconnection');
 const userRoute=require("./routes/user");
 const storeRoute=require("./routes/store");
@@ -18,6 +21,7 @@ const ErrorCtrl=require('./controllers/ErrorController');
 const app=new express();
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname,'uploads')));
 app.use("/api/user", userRoute);
 app.use("/api/store",storeRoute);
 app.use("/api/category",categoryRoute);

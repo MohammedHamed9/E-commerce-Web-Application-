@@ -26,6 +26,7 @@ const UserSchema=new mongoose.Schema({
         trim:true,
         minLength:8
     },
+    passwordChangedAt:Date,
     phone:{
         type:String,
         required:true,
@@ -68,12 +69,10 @@ const UserSchema=new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    verificationToken:{
-        type:Number,
-        index:true,
-        unique:true,
+    active:{
+        type:Boolean,
+        default:true
     },
-   
     passwordRestToken:String,
     passwordRestExpires:Date,
 },{ 

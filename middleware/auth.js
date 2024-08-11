@@ -1,10 +1,11 @@
 const jwt=require("jsonwebtoken");
 const User=require("../models/userModel");
+const appError=require('../utils/appError');
 const authCtrl=
 {
 protect:async(req,res,next)=>{
     try{
-        if(!req.headers.authorization || !req.headers.authorization.startsWith("bearer"))
+        if(!req.headers.authorization || !req.headers.authorization.startsWith("Bearer"))
             return res.status(401).json({
                 message:"You are not logged in please login!"
             });
@@ -12,10 +13,20 @@ protect:async(req,res,next)=>{
             const token =req.headers.authorization.split(" ")[1];
             const decoded=jwt.verify(token,process.env.JWT_SECRET);
             const currentUser= await User.findById(decoded.id);
-            if(!currentUser)
+            if(!currentUser || currentUser.active==false)
             return res.json({
                 message:"this user is no longer exist"
             });
+            //to check if the user has changed the password
+            if(currentUser.passwordChangedAt){
+                let passwordChangedAtTimeStamp=
+               parseInt(currentUser.passwordChangedAt.getTime()/1000,10);
+               if(passwordChangedAtTimeStamp>decoded.iat){
+                return next(new appError('your changed your password, please log in agian!',401))
+
+               }
+               
+            }
             req.user=currentUser;
             next();
     }

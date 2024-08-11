@@ -40,8 +40,9 @@ const BrandCtrl={
                     req.body.Brand_image=req.file.path;
                 }
             }
-
-            req.body.slug=slugify(req.body.name);    
+            if(req.body.name){
+                req.body.slug=slugify(req.body.name);    
+            }
         const updatedBrand= await Brand.findByIdAndUpdate(req.params.id,
             req.body,
             {new:true});
@@ -86,7 +87,7 @@ const BrandCtrl={
         if(req.query.sort){
          sortBy=req.query.sort.split(",").join(" ");
     }
-    else{
+        else{
          sortBy="createdAt"
     }
         //4)preparing to retrev some fields only

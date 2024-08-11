@@ -71,7 +71,7 @@ login: async(req,res,next)=>{
                 message:"please provide your email and password to login!"
                 });
         const user=await User.findOne({email:email});
-        if(!user || !await user.correctPassword(password,user.password)){
+        if(!user || !await user.correctPassword(password,user.password) || user.active==false){
             return res.status(500).json({
                 message:"the email or the password is wrong!"
         })
@@ -97,32 +97,46 @@ logout:(req,res,next)=>{
     message:'loggedout successfully..'
    });
 },
-//NOT IMPLMENTED
 getAllUsers:async(req,res,next)=>{
-    const filter=req.body.filter;
-            //find the products with this categoryId
-            const products=await Product.find({category_id:{$in:filter}});
+    try{
+        const users=await User.find();
+        res.status(200).json({
+            users
+        });
+    }catch(error){
 
-            const productIds=products.map(el=> el._id);  
-            console.log(productIds);
-            res.json({
-                products
-            })
+    }
 },
 getUser:async(req,res,next)=>{
     try{
-        //const users=await User.find({'cart.products.product':req.params.id});
-        const productIds=req.body.productIds;
-        await User.updateMany({
-            'cart.products.product':{$in:productIds}},
-            {$pull:{'cart.products':{ product:{$in:productIds}}} });
-        res.status("200").json({
-            message:"done"
+        const user_id=req.params.id;
+        const user=await User.findById(user_id);
+        if(!user){
+            next(new appError('this user is not exist!',400));
+        }
+        res.status(200).json({
+            user
         })
+    }catch(err){
+        console.log(err);
+        next(new appError('somthing went wrong!',500));
     }
-    catch(error){
-        console.log(error);
-        next(new appError('something went wrong!',500));
+},
+updateUser:async(req,res,next)=>{
+    try{
+        const user=await User.findById(req.params.id);
+        if(!user){
+            return next(new appError('the user is not exist!',400));
+        }
+        const updatedUser=await User.findByIdAndUpdate(req.params.id,req.body,
+            {new:true});
+            res.status(201).json({
+                message:'the User is updated..',
+                updatedUser
+            });
+    }catch(err){
+        console.log(err);
+        next(new appError('somthing went wrong!',500));
     }
 },
 deleteUser:async(req,res,next)=>{
@@ -132,9 +146,9 @@ deleteUser:async(req,res,next)=>{
         return res.status(500).json({
             message:"this user is not found !"
         });
-        const filePath=user.avatar;
-        await fsunlink(filePath);
-        await User.findByIdAndDelete(user._id);
+        
+        user.active=false;
+        user.save();
         res.json({
             message:"the user is deleted.."
         })
@@ -256,6 +270,7 @@ updatePassword:async(req,res,next)=>{
             return next(new appError('sorry passwords are not the same!',400))
         }
         req.user.password=newPassword;
+        req.user.passwordChangedAt=Date.now();
         await req.user.save();
         res.status(200).json({
             message:'the password is updated successfully..'
@@ -290,7 +305,8 @@ updateMe:async(req,res,next)=>{
 },
 deleteMe:async(req,res,next)=>{
     try {
-        await User.findByIdAndDelete(req.user._id);
+        req.user.active=false
+        await req.user.save();
         res.status(203).json({
             message:'the user is deleted'
         });

@@ -1,5 +1,5 @@
 const {check,validationResult}=require('express-validator');
-const sendError=
+    const sendError=
 (req,res,next)=>{
     const errors=validationResult(req);
     if(!errors.isEmpty()){

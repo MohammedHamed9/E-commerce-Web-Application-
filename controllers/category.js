@@ -43,8 +43,9 @@ const categoryCtrl={
                     
                 }
             }
-
-            req.body.slug=slugify(req.body.name);    
+            if(req.body.name){
+            req.body.slug=slugify(req.body.name);       
+            }
         const updatedCategory= await Category.findByIdAndUpdate(req.params.id,
             req.body,
             {new:true});
