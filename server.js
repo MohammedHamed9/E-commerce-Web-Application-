@@ -7,12 +7,13 @@ const morgan=require('morgan');
 
 const DBconnection=require('./config/DBconnection');
 const userRoute=require("./routes/user");
-const storeRoute=require("./routes/store");
 const categoryRoute=require('./routes/category');
 const productRoute=require('./routes/product');
 const purchaseRoute=require('./routes/purchasing');
 const orderRoute=require('./routes/order');
 const subCategory=require('./routes/subCategory');
+const review=require('./routes/Review');
+
 const Brand=require('./routes/Brand');
 
 const appError = require('./utils/appError');
@@ -23,13 +24,14 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname,'uploads')));
 app.use("/api/user", userRoute);
-app.use("/api/store",storeRoute);
 app.use("/api/category",categoryRoute);
 app.use("/api/product",productRoute);
 app.use("/api/purchase",purchaseRoute);
 app.use("/api/order",orderRoute);
 app.use("/api/subCategory",subCategory);
 app.use("/api/brand",Brand);
+app.use("/api/review",review);
+
 
 app.all('*',(req,res,next)=>{
     next(new appError(`cant find this route: ${req.originalUrl} in this server!`,404));

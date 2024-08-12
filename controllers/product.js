@@ -169,6 +169,7 @@ const productCtrl={
             .populate("category","name status -_id")
             .populate("subcategory","name -_id")
             .populate("brand","name status -_id")
+            .populate("reviews");
             if(!product_id){
                 next(new appError('this product is not exist!',400));
             }

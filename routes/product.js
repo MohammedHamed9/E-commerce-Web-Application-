@@ -5,6 +5,7 @@ const authCtrl=require('../middleware/auth');
 const uploadMiddleware=require('../middleware/uploadMiddleware');
 const resizeingMiddleware=require('../middleware/resizeingMiddleware');
 const validators=require("../utils/validators/productValidations")
+const ReviewRoute=require('./Review');
 router.post('/createProduct',authCtrl.protect,authCtrl.restrictedTo(1),
 uploadMiddleware.upload
 .fields([{ name: 'image_cover', maxCount: 1 }, { name: 'product_images', maxCount: 5 }])
@@ -17,5 +18,5 @@ router.get('/getProduct/:id',validators.getProductVlidator,productCtrl.getProduc
 router.get('/searchForProduct',authCtrl.protect,productCtrl.searchForProduct);
 router.get('/filterPorducts',authCtrl.protect,productCtrl.filterPorducts);
 router.delete('/deleteProduct/:id',authCtrl.protect,authCtrl.restrictedTo(1),validators.getProductVlidator,productCtrl.deleteProduct);
-
+router.use('/getReviews',ReviewRoute);
 module.exports=router;
