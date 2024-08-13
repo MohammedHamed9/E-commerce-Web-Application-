@@ -1,24 +1,23 @@
 const mongoose=require("mongoose");
-const BrandSchema =new mongoose.Schema({
+const CouponSchema =new mongoose.Schema({
     name:{
         type:String,
-        required:true,
+        required:[true,'the coupon must has a name'],
         trim:true,
         minLength:3,
         unique:true
     },
-    slug:{
-        type:String,
-        lowercase:true
+    expire:{
+        type:Date,
+        required:[true,'the coupon must has a expire dare'],
     },
-    status:{
+    discount:{
+        type:Number,
+        required:[true,'the coupon must has a discount amount'],
+    },
+    active:{
         type:Boolean,
         default:true
-    },
-    Brand_image:{
-        type:String,
-        default:"",
-        trim:true
     },
     admin_created_id:{
         type:mongoose.Types.ObjectId,
@@ -29,4 +28,4 @@ const BrandSchema =new mongoose.Schema({
         ref:'users',
     }
 },{timestamps:true});
-module.exports=mongoose.model("brands",BrandSchema);
+module.exports=mongoose.model("coupons",CouponSchema);
