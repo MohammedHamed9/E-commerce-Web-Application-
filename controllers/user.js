@@ -475,7 +475,10 @@ emptyTheCart:async(req,res,next)=>{
 addFavItem:async(req,res,next)=>{
     try{
         const productId=req.params.productId;
-
+        const Oldproduct=await Product.findById(req.params.productId);
+        if(!Oldproduct){
+            return next(new appError('this product is not exist right now!',404));
+        }
         const userFavItems=await User.findById(req.user._id).select('favorite_items')
         let flag=false;
         const array=userFavItems.favorite_items.products.map(el=>{
@@ -536,6 +539,93 @@ getAllFavoriteItems:async(req,res,next)=>{
     }catch(error){
         console.log(error)
         next(new appError('something went wrong!',500))
+    }
+},
+addAddress:async(req,res,next)=>{
+    try{
+        const theuser=await User.findOne({"addresses.alias": req.body.alias });
+        if(theuser)
+            return next(new appError('this address already exists',400));
+        
+        const user=await User.findByIdAndUpdate(req.user._id,
+            {
+                $addToSet:{addresses:req.body}
+            },{new:true});
+            res.status(201).json({
+                message:"addresses are added",
+                user
+            });
+    
+    }catch(error){
+        console.log(error);
+        return next(new appError("something went wrong!",500));
+    }
+},
+removeAddress:async(req,res,next)=>{
+    try{
+        const addressId=req.params.id;
+        const user=await User.findOne({"addresses._id": addressId });
+        if(!user)
+            return next(new appError('this address is not exists',404));
+        
+        const theUser=await User.findByIdAndUpdate(req.user._id,
+            {
+                $pull:{addresses:{_id:addressId}}
+            },{new:true});
+            res.status(204).json({
+                message:"done",
+               
+            });
+    
+    }catch(error){
+        console.log(error);
+        return next(new appError("something went wrong!",500));
+    }
+},
+getAllAdresses:async(req,res,next)=>{
+    try{
+        
+        const user=await User.findById(req.user._id);
+            res.status(200).json({
+                message:"here is your addresses",
+                data:user.addresses
+            });
+    
+    }catch(error){
+        console.log(error);
+        return next(new appError("something went wrong!",500));
+    }
+},
+updateAddress:async(req,res,next)=>{
+    try{
+        const addressId=req.params.id;
+        const user=await User.findOne({"addresses._id": addressId });
+        if(!user)
+            return next(new appError('this address is not exists',404));
+        let filter={};
+        let flag=0;
+        let array =user.addresses.map((el,index)=>{
+            if(el._id==addressId){
+                filter=el;
+                flag=index;
+            }
+        });
+        req.body._id=filter._id;
+        if(!req.body.alias)req.body.alias=filter.alias;
+        if(!req.body.details)req.body.details=filter.details;
+        if(!req.body.city)req.body.city=filter.city;
+        if(!req.body.phone)req.body.phone=filter.phone;
+        if(!req.body.postalCode)req.body.postalCode=filter.postalCode;
+            user.addresses[flag]=req.body;
+            await user.save()
+            res.status(200).json({
+                message:"the address is updated",
+                user
+            });
+    
+    }catch(error){
+        console.log(error);
+        return next(new appError("something went wrong!",500));
     }
 },
 }

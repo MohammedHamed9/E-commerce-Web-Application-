@@ -7,7 +7,6 @@ router.post('/createReview/:ProdId',authCtrl.protect,authCtrl.restrictedTo(0),va
 router.patch('/updateReview/:id',authCtrl.protect,authCtrl.restrictedTo(0),ReviewCtrl.updateReview)
 router.get('/getReview/:id',ReviewCtrl.getReview);
 router.get('/',ReviewCtrl.getReviews);
-router.get('/getstats/:id',ReviewCtrl.clacStatics);
 router.get('/:ProdId',ReviewCtrl.getReviews);
 router.delete('/deleteReview/:id',authCtrl.protect,ReviewCtrl.deleteReview)
 module.exports=router;

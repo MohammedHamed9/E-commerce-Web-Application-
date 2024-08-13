@@ -35,4 +35,9 @@ router.get('/getAllFavoriteItems',authCtrl.protect,authCtrl.restrictedTo(0),user
 router.post('/addFavItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.addFavItem);
 router.delete('/removeFavItem/:productId',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.removeFavItem);
 
+router.post('/addAddress',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.addAddress);
+router.delete('/removeAddress/:id',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.removeAddress);
+router.get('/getAllAdresses',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.getAllAdresses);
+router.patch('/updateAddress/:id',authCtrl.protect,authCtrl.restrictedTo(0),userCtrl.updateAddress);
+
 module.exports=router;

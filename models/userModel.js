@@ -73,6 +73,25 @@ const UserSchema=new mongoose.Schema({
         type:Boolean,
         default:true
     },
+    addresses:[
+        {
+            id:{type:mongoose.Schema.Types.ObjectId},
+            alias:{
+                type:String,
+                unique:true,
+                trim:true,
+                required:[true,'the address must has an alias']
+            },
+            details:{
+                type:String,
+                trim:true,
+                required:[true,'the address must has an details']
+            },
+            city:String,
+            phone:String,
+            postalCode:String
+        }
+    ],
     passwordRestToken:String,
     passwordRestExpires:Date,
 },{ 
