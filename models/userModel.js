@@ -41,20 +41,6 @@ const UserSchema=new mongoose.Schema({
         type:String,
         default:""
     },
-    cart:{
-       products:[
-        {
-        product:{
-            type:mongoose.Schema.ObjectId,
-            ref:'products'
-        },
-        quantity:{
-            type:Number,
-            default:1
-        }
-       }
-       ]
-    },
     favorite_items:{
         products:[
             {

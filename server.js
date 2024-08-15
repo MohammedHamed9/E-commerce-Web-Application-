@@ -14,6 +14,7 @@ const orderRoute=require('./routes/order');
 const subCategory=require('./routes/subCategory');
 const review=require('./routes/Review');
 const coupon=require('./routes/coupon');
+const cart=require('./routes/cart');
 
 const Brand=require('./routes/Brand');
 
@@ -33,6 +34,7 @@ app.use("/api/subCategory",subCategory);
 app.use("/api/brand",Brand);
 app.use("/api/review",review);
 app.use("/api/coupon",coupon);
+app.use("/api/cart",cart);
 
 
 app.all('*',(req,res,next)=>{

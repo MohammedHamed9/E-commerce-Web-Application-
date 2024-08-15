@@ -26,7 +26,7 @@ const validators={
         .custom((val) =>
             User.findOne({email:val}).then((user)=>{
                 if(user){
-                    return Promise.reject(new appError('E-mail already in user',400))
+                    return Promise.reject(new appError('E-mail already in use',400))
                 }
             })
         ),
