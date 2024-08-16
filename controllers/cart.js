@@ -22,7 +22,8 @@ const CartCtrl={
             const newCart=await Cart.create({cart_items:req.body,totalPrice:req.body.price*quantity,user:req.user._id});
             return res.status(200).json({
                 message:'the item is added to the cart',
-                newCart
+                newCart,
+                totalNumOfProducts:newCart.cart_items.length
             });
         }
        
@@ -48,7 +49,8 @@ const CartCtrl={
         }
         res.status(200).json({
             message:'the item is added to the cart',
-            cart
+            cart,
+            totalNumOfProducts:cart.cart_items.length
         });
         } catch (error) {
             console.log(error);
@@ -65,6 +67,11 @@ const CartCtrl={
         
         if(!userCart){
             return next(new appError('sorry this item is not exist in the cart!',404));
+        }
+
+        const theproduct=await Product.findById(userCart.cart_items.product);
+        if(quantity>theproduct.quantity){
+            return next(new appError('sorry the quantity Exceeds the available quantity',400));
         }
         let flag=0;
         userCart.cart_items.map((el,index)=>{
