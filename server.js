@@ -1,5 +1,6 @@
 const path=require('path');
 var cors = require('cors')
+const compression=require('compression');
 const dotenv=require('dotenv')
 dotenv.config()
 const express=require('express');
@@ -25,7 +26,7 @@ const app=new express();
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cors())
-
+app.use(compression());   
 app.use(express.static(path.join(__dirname,'uploads')));
 app.use("/api/user", userRoute);
 app.use("/api/category",categoryRoute);
